@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <>
       <div className={styles.gomi}>
-        <p>gomi</p>
+        <p>gomi 2</p>
       </div>
     </>
   );
