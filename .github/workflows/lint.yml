@@ -1,13 +1,37 @@
 # ワークフローの名前を定義する
+name: check lint
 
 # ワークフローの実行方法を定義する
-# 特定のブランチでは実行しない
-# 特定のファイルにコミットがpushされた時に実行する
+on:
+  push:
 
 # ワークフローで行う処理を定義する
+jobs:
+  # 処理の名前を定義
+  job-lint:
+    # 実行環境や諸々の設定を定義
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # タイムアウト時間を定義(原則設定した方が良い。お金かからないためにも)
+    concurrency: # 同時に動き出したら1個目が中断され2個目が動き出す(?)
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    # 実際に行う処理のステップを記載
+    steps:
+      # 本GitHubリポジトリを本アクション環境に持ってくるイメージ
+      - uses: actions/checkout@v4
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
 
-# 処理の名前を定義
+      # Node.jsのセットアップ
+      - uses: actions/setup-node@v4
+        with:
+          # volta.nodeを参照
+          node-version-file: package.json
 
-# 実行環境や諸々の設定を定義
+      # npm install
+      - name: node moduleのインストール
+        run: npm ci
 
-# 実際に行う処理のステップを記載
+      # npmの lint
+      - name: npm の lint
+        run: npm run lint
